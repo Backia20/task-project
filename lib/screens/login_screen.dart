@@ -24,26 +24,35 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           children: [
             TextField(
-                controller: emailCtrl,
-                decoration: const InputDecoration(labelText: "Email")),
+              controller: emailCtrl,
+              decoration: const InputDecoration(labelText: "Email"),
+            ),
             TextField(
-                controller: passCtrl,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Password")),
+              controller: passCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: "Password"),
+            ),
             const SizedBox(height: 20),
             auth.isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: () async {
                       try {
-                        await auth.login(emailCtrl.text, passCtrl.text);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(
-                                "Login success! Welcome ${auth.user!['name']}")));
-                        Navigator.pushReplacementNamed(context, '/dashboard');
+                        await auth.login(
+                          emailCtrl.text.trim(),
+                          passCtrl.text.trim(),
+                        );
+
+                        if (!mounted) return;
+
+                        Navigator.pushReplacementNamed(
+                            context, '/dashboard');
                       } catch (e) {
+                        if (!mounted) return;
+
                         ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(e.toString())));
+                          SnackBar(content: Text(e.toString())),
+                        );
                       }
                     },
                     child: const Text("Login"),

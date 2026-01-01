@@ -14,14 +14,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    final lockerProvider =
-        Provider.of<LockerProvider>(context, listen: false);
-    lockerProvider.fetchLockers();
+    Future.microtask(() {
+      Provider.of<LockerProvider>(context, listen: false).fetchLockers();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
+
+    // 🔐 APK SAFETY CHECK
+    if (auth.user == null) {
+      Future.microtask(() {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+      return const SizedBox();
+    }
+
     final lockerProvider = Provider.of<LockerProvider>(context);
 
     return Scaffold(
@@ -29,11 +38,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text("Dashboard"),
         actions: [
           IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                auth.logout();
-                Navigator.pushReplacementNamed(context, '/login');
-              })
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              auth.logout();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          )
         ],
       ),
       body: lockerProvider.isLoading
@@ -42,17 +52,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               itemCount: lockerProvider.lockers.length,
               itemBuilder: (context, index) {
                 final locker = lockerProvider.lockers[index];
-                final lockerId = locker['lockerId'];
-                final lastAccess = locker['lastAccessed'] ?? 'Never';
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
-                    title: Text("Locker: $lockerId (${locker['size']})"),
-                    subtitle: Text("Last Accessed: $lastAccess"),
+                    title: Text(
+                        "Locker ${locker['lockerId']} (${locker['size']})"),
+                    subtitle: Text(
+                        "Last Accessed: ${locker['lastAccessed'] ?? 'Never'}"),
                     trailing: ElevatedButton(
                       onPressed: () {
-                        lockerProvider.openLocker(lockerId);
+                        lockerProvider.openLocker(locker['lockerId']);
                       },
                       child: const Text("Open"),
                     ),

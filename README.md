@@ -34,8 +34,7 @@ This Flutter-based mobile application was developed as part of the internship ta
 
 ## Technical Details
 - **Framework:** Flutter (single codebase)  
-- **State Management:** Provider  
-- **Local Storage:** Hive  
+- **State Management:** Provider   
 - **API:** Mock REST API  
 - **Platform:** Android (APK provided)
 
